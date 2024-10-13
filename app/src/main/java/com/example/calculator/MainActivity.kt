@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var display: TextView
-    private var lastResult: Double? = null
+    private var lastResult: Int? = null
     private var currentInput: String = ""
     private var operator: String? = null
 
@@ -56,37 +56,46 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun appendDigit(digit: String) {
         currentInput += digit
-        display.text = currentInput
+        if (lastResult != null && operator != null) {
+            display.text = "${lastResult.toString()} $operator $currentInput"
+        } else {
+            display.text = currentInput
+        }
     }
 
     private fun setOperator(op: String) {
         if (currentInput.isNotEmpty()) {
-            val inputValue = currentInput.toDouble()
+            val inputValue = currentInput.toInt()
             if (lastResult == null) {
                 lastResult = inputValue
             } else {
                 calculateResult()
             }
             operator = op
+
+
             currentInput = ""
+            display.text = "${lastResult.toString()} $operator "
         }
     }
 
     private fun calculateResult() {
         if (lastResult != null && operator != null && currentInput.isNotEmpty()) {
-            val secondOperand = currentInput.toDouble()
+            val secondOperand = currentInput.toInt()
             lastResult = when (operator) {
                 "+" -> lastResult!! + secondOperand
                 "-" -> lastResult!! - secondOperand
                 "*" -> lastResult!! * secondOperand
-                "/" -> if (secondOperand != 0.0) lastResult!! / secondOperand else Double.NaN
+                "/" -> if (secondOperand != 0) lastResult!! / secondOperand else null
                 else -> null
             }
 
-            // Hiển thị kết quả
-            display.text = lastResult.toString()
+            display.text = lastResult?.toString()
+
             currentInput = ""
             operator = null
+        } else if (lastResult != null && operator != null && currentInput.isEmpty()) {
+            display.text = lastResult?.toString()
         }
     }
 
